@@ -51,8 +51,10 @@ class Player:
         self.planeX = self.dirY * self.fov_factor
         self.planeY = -self.dirX * self.fov_factor
 
-    def render(self, surf: pygame.Surface, resolution):
-        # Implement the raycasting logic here
+    def render(self, surf: pygame.Surface, resolution: int):
+        # implement the whole thing here
+        # files {a -> c}.py will contain all the parts for this project to work.
+        # re-order the code correctly, and see the project run!
         pass
 
     def move_straight(self, dir: int):
@@ -77,7 +79,7 @@ def game():
         keys = pygame.key.get_pressed()
 
         # Player movement
-        player_obj.rotate(keys[pygame.K_a] - keys[pygame.K_d])
+        player_obj.rotate((keys[pygame.K_a] - keys[pygame.K_d]) * 3)
         player_obj.move_straight(keys[pygame.K_w] - keys[pygame.K_s])
 
         # Display
