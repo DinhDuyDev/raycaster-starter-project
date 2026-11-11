@@ -51,18 +51,77 @@ class Player:
         self.planeX = self.dirY * self.fov_factor
         self.planeY = -self.dirX * self.fov_factor
 
-    def render(self, surf: pygame.Surface, resolution: int):
-        # implement the whole thing here
-        # files {a -> c}.py will contain all the parts for this project to work.
-        # re-order the code correctly, and see the project run!
-        pass
+    def render(self, surf: pygame.Surface, resolution):
+        column_width = GameState.WIDTH / resolution
+        height_scale = 3
+
+        posX = self.x / GameState.CELL_WIDTH
+        posY = self.y / GameState.CELL_WIDTH
+
+        for i in range(resolution):
+            mapPosX = int(self.x / GameState.CELL_WIDTH)
+            mapPosY = int(self.y / GameState.CELL_WIDTH)
+            cameraX = 2 * (i / resolution) - 1
+            rayDirX = self.dirX + self.planeX * cameraX
+            rayDirY = self.dirY + self.planeY * cameraX
+
+            deltaDistX = 1e30 if rayDirX == 0 else abs(1/rayDirX)
+            deltaDistY = 1e30 if rayDirY == 0 else abs(1/rayDirY)
+
+            perpWallDist = -1
+            sideDistX = -1
+            sideDistY = -1
+
+            stepX = -1
+            stepY = -1
+
+            hit = False
+            side = 0
+
+            if rayDirX < 0:
+                stepX = -1
+                sideDistX = (posX - mapPosX) * deltaDistX
+            else:
+                stepX = 1
+                sideDistX = (mapPosX + 1.0 - posX) * deltaDistX
+
+
+            if rayDirY < 0:
+                stepY = -1
+                sideDistY = (posY - mapPosY) * deltaDistY
+            else:
+                stepY = 1
+                sideDistY = (mapPosY + 1.0 - posY) * deltaDistY
+
+            while not hit:
+                if sideDistX < sideDistY:
+                    sideDistX += deltaDistX
+                    mapPosX += stepX
+                    side = 0
+                else:
+                    sideDistY += deltaDistY
+                    mapPosY += stepY
+                    side = 1
+                
+                if GameState.map_geometry[mapPosY][mapPosX] != 0:
+                    hit = True
+
+                    # side determination
+            if side == 0: 
+                perpWallDist = abs(sideDistX - deltaDistX)
+            else: 
+                perpWallDist = abs(sideDistY - deltaDistY)
+
+            height = min(GameState.HEIGHT / (perpWallDist * height_scale), 1280)
+            pygame.draw.rect(surf, (255, 0, 0) if side else (100, 0, 0), (
+                i * column_width, GameState.HEIGHT / 2 - height/2, column_width, height
+            ))
 
     def move_straight(self, dir: int):
         player_obj.x += player_obj.dirX * dir
         player_obj.y += player_obj.dirY * dir
 
 player_obj = Player()
-
 
 # game
 def game():
